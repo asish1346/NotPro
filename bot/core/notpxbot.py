@@ -42,11 +42,10 @@ class NotPXBot:
         self._notpx_api_checker: NotPXAPIChecker = NotPXAPIChecker()
         self._headers = self._create_headers()
         self.is_template_reselected: bool = False
-        self.template_id: int = 0  # defiend in _set_template
-        self.template_url: str = ""  # defiend in _set_template
-        self.template_x: int = 0  # defiend in _set_template
-        self.template_y: int = 0  # defiend in _set_template
-        self.template_size: int = 0  # defiend in _set_template
+        self.template_url: str = ""
+        self.template_x: int = 0
+        self.template_y: int = 0
+        self.template_size: int = 0
         self.max_boosts: Dict[str, int] = {
             "paintReward": 7,
             "reChargeSpeed": 11,
@@ -604,67 +603,6 @@ class NotPXBot:
 
             raise Exception(f"{self.session_name} | Error while claiming px: {error}")
 
-    async def _set_template(
-        self, session: aiohttp.ClientSession, attempts: int = 1
-    ) -> None:
-        try:
-            plausible_payload = await self._create_plausible_payload(
-                u="https://app.notpx.app/template"
-            )
-            await self._send_plausible_event(session, plausible_payload)
-
-            response = await session.get(
-                "https://notpx.app/api/v1/image/template/list?limit=12&offset=0",
-                headers=self._headers["notpx"],
-                ssl=settings.ENABLE_SSL,
-            )
-            response.raise_for_status()
-            response_json = await response.json()
-
-            random_template = choice(response_json)
-
-            response = await session.get(
-                f"https://notpx.app/api/v1/image/template/{random_template['templateId']}",
-                headers=self._headers["notpx"],
-                ssl=settings.ENABLE_SSL,
-            )
-            response.raise_for_status()
-            response_json = await response.json()
-
-            self.template_id = response_json.get("id")
-            self.template_url = response_json.get("url")
-            self.template_x = response_json.get("x")
-            self.template_y = response_json.get("y")
-            self.template_size = response_json.get("imageSize")
-
-            response = await session.put(
-                f"https://notpx.app/api/v1/image/template/subscribe/{self.template_id}",
-                headers=self._headers["notpx"],
-                ssl=settings.ENABLE_SSL,
-            )
-            response.raise_for_status()
-
-            logger.info(f"{self.session_name} | Successfully set template")
-
-            plausible_payload = await self._create_plausible_payload(
-                u="https://app.notpx.app/"
-            )
-            await self._send_plausible_event(session, plausible_payload)
-        except Exception:
-            plausible_payload = await self._create_plausible_payload(
-                u="https://app.notpx.app/"
-            )
-            await self._send_plausible_event(session, plausible_payload)
-
-            if attempts <= 3:
-                logger.warning(
-                    f"{self.session_name} | Failed to set template, retrying in {self.RETRY_DELAY} seconds | Attempts: {attempts}"
-                )
-                await asyncio.sleep(self.RETRY_DELAY)
-                return await self._set_template(session=session, attempts=attempts + 1)
-
-            raise Exception(f"{self.session_name} | Error while setting template")
-
     async def _check_tournament_my(
         self, session: aiohttp.ClientSession, attempts: int = 1
     ) -> bool | None:
@@ -679,7 +617,6 @@ class NotPXBot:
             elif response.status == 200:
                 response_json = await response.json()
 
-                self.template_id = response_json.get("id")
                 self.template_url = response_json.get("url")
                 self.template_x = response_json.get("x")
                 self.template_y = response_json.get("y")
@@ -1152,6 +1089,18 @@ class NotPXBot:
 
             if template_ids:
                 template_id = random.choice(template_ids)
+
+                response = await session.get(
+                    f"https://notpx.app/api/v1/tournament/template/{template_id}",
+                    headers=self._headers["notpx"],
+                    ssl=settings.ENABLE_SSL,
+                )
+                response_json = await response.json()
+
+                self.template_url = response_json.get("url")
+                self.template_x = response_json.get("x")
+                self.template_y = response_json.get("y")
+                self.template_size = response_json.get("imageSize")
             else:
                 template_id = await self._get_random_approved_template_id(session)
 
@@ -1203,6 +1152,11 @@ class NotPXBot:
             for template in random_template_list:
                 is_template_approved = template.get("approved", False)
                 if is_template_approved:
+                    self.template_url = template.get("url")
+                    self.template_x = template.get("x")
+                    self.template_y = template.get("y")
+                    self.template_size = template.get("imageSize")
+
                     return template.get("id")
 
             await asyncio.sleep(random.uniform(1.5, 3))
