@@ -112,7 +112,7 @@ class NotPXBot:
             "gold": 2,
             "platinum": 3,
         }
-        self._quests_list: List[str] = []
+        self._quests_list: List[str] = settings.SECRET_WORDS
         self._quests_to_complete: List[str] = []
 
     def _create_headers(self) -> Dict[str, Dict[str, str]]:
@@ -742,6 +742,8 @@ class NotPXBot:
 
             self._completed_quests = response_json.get("quests")
             for quest in self._quests_list:
+                if quest == "secretWord:example":
+                    continue
                 if not self._completed_quests:
                     self.quests_to_complete = []
                     self._quests_to_complete.append(quest)
@@ -1048,7 +1050,7 @@ class NotPXBot:
                             )
                         else:
                             raise Exception(
-                                f"{self.session_name} | Failed to complete task: {task_value}"
+                                f"{self.session_name} | Failed to complete task: {task_key}"
                             )
 
                     await asyncio.sleep(random.uniform(4.95, 6.35))
@@ -1227,7 +1229,7 @@ class NotPXBot:
 
                 if response.status == 403:
                     logger.info(
-                        f"{self.session_name} | Already completed secret word quest | Secret word: {secret_word}"
+                        f"{self.session_name} | Wrong word, fren | Secret word: {secret_word}"
                     )
                     continue
 
