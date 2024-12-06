@@ -82,24 +82,14 @@ class NotPXBot:
                 "leagueBonusPlatinum": "leagueBonusPlatinum",
             },
             "click_tasks_list": {
-                "tonPoker": {
-                    "event_name": "task_poker",
-                    "name": "tonPoker",
+                "solitaireGame": {
+                    "event_name": "task_solitaire",
+                    "name": "solitaireGame",
                     "reward": 512,
                 },
-                "flappyBird": {
-                    "event_name": "task_flappy",
-                    "name": "flappyBird",
-                    "reward": 512,
-                },
-                "hauntedSpace": {
-                    "event_name": "task_haunted",
-                    "name": "hauntedSpace",
-                    "reward": 512,
-                },
-                "capsGame": {
-                    "event_name": "task_caps",
-                    "name": "capsGame",
+                "tonDurakGame": {
+                    "event_name": "task_durak",
+                    "name": "tonDurakGame",
                     "reward": 512,
                 },
             },
