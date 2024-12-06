@@ -6,7 +6,6 @@ import re
 import sys
 import traceback
 from datetime import datetime, timedelta, timezone
-from random import choice, randint
 from time import time
 from typing import Any, Dict, List, NoReturn
 from uuid import uuid4
@@ -117,23 +116,33 @@ class NotPXBot:
 
         websocket_headers = {
             "Cache-Control": "no-cache",
+            "Origin": "https://notpx.app",
             "Pragma": "no-cache",
             "Sec-Fetch-Dest": "websocket",
             "Sec-Fetch-Mode": "websocket",
             "Sec-Fetch-Site": "same-site",
         }
 
-        def create_headers(additional_headers=None):
+        def create_headers(
+            additional_headers: Dict[str, str] | None = None,
+            delete_headers: List[str] | None = None,
+        ) -> Dict[str, str]:
             headers = base_headers.copy()
             if additional_headers:
                 headers.update(additional_headers)
+            if delete_headers:
+                for header in delete_headers:
+                    headers.pop(header, None)
             return headers
 
         return {
             "notpx": create_headers({"Authorization": ""}),
             "tganalytics": create_headers(),
             "plausible": create_headers({"Sec-Fetch-Site": "cross-site"}),
-            "websocket": create_headers(websocket_headers),
+            "websocket": create_headers(
+                websocket_headers,
+                ["Referer", "Sec-Fetch-Dest", "Sec-Fetch-Mode", "Sec-Fetch-Site"],
+            ),
             "image_notpx": create_headers(),
             "adsgram": create_headers({"X-Requested-With": "XMLHttpRequest"}),
         }
@@ -148,11 +157,15 @@ class NotPXBot:
         sec_ch_ua_mobile = "?1"
         sec_ch_ua_platform = '"Android"'
 
-        for header in self._headers.values():
-            header["User-Agent"] = user_agent
-            header["Sec-Ch-Ua"] = sec_ch_ua
-            header["Sec-Ch-Ua-Mobile"] = sec_ch_ua_mobile
-            header["Sec-Ch-Ua-Platform"] = sec_ch_ua_platform
+        for headers_name, headers in self._headers.items():
+            headers["User-Agent"] = user_agent
+
+            if headers_name == "websocket":
+                continue
+
+            headers["Sec-Ch-Ua"] = sec_ch_ua
+            headers["Sec-Ch-Ua-Mobile"] = sec_ch_ua_mobile
+            headers["Sec-Ch-Ua-Platform"] = sec_ch_ua_platform
 
         self.proxy = proxy
 
@@ -374,10 +387,10 @@ class NotPXBot:
 
     async def _handle_night_sleep(self) -> None:
         current_hour = datetime.now().hour
-        start_night_time = randint(
+        start_night_time = random.randint(
             settings.NIGHT_START_HOURS[0], settings.NIGHT_START_HOURS[1]
         )
-        end_night_time = randint(
+        end_night_time = random.randint(
             settings.NIGHT_END_HOURS[0], settings.NIGHT_END_HOURS[1]
         )
 
@@ -395,7 +408,7 @@ class NotPXBot:
             else:
                 return
 
-        random_minutes_to_sleep_time = randint(
+        random_minutes_to_sleep_time = random.randint(
             settings.ADDITIONAL_NIGHT_SLEEP_MINUTES[0],
             settings.ADDITIONAL_NIGHT_SLEEP_MINUTES[1],
         )
@@ -451,7 +464,7 @@ class NotPXBot:
                 "eyJhcHBfbmFtZSI6Ik5vdFBpeGVsIiwiYXBwX3VybCI6Imh0dHBzOi8vdC5tZS9ub3RwaXhlbC9hcHAiLCJhcHBfZG9tYWluIjoiaHR0cHM6Ly9hcHAubm90cHguYXBwIn0=!qE41yKlb/OkRyaVhhgdePSZm5Nk7nqsUnsOXDWqNAYE="
             )
 
-            random_event_delay = randint(2500, 2800)
+            random_event_delay = random.randint(2500, 2800)
 
             payload = self._create_tganalytics_payload(random_event_delay)
 
