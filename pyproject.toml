@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "notpixelbot"
-version = "1.7.3"
+version = "1.7.4"
 description = "Bot for automation Not Pixel telegram mini app"
 authors = ["Dellenoam", "YourLov3r"]
 license = "MIT License"
