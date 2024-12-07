@@ -201,6 +201,7 @@ class NotPXBot:
                     await asyncio.sleep(next_iteration_sleep_time)
             except Exception as error:
                 handle_error(self.session_name, error)
+                await self._websocket_manager.stop()
                 logger.info(
                     f"{self.session_name} | Retrying in {self.RETRY_ITERATION_DELAY} seconds"
                 )
