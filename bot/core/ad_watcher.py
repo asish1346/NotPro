@@ -206,6 +206,11 @@ class AdWatcher:
                     logger.info(f"{self.session_name} | No ads to watch")
                     break
                 adsgram_response.raise_for_status()
+                adsgram_response_json = await adsgram_response.json()
+
+                if not adsgram_response_json:
+                    logger.info(f"{self.session_name} | No ads to watch")
+                    break
 
                 adsgram_response_json = await adsgram_response.json()
 
