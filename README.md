@@ -240,8 +240,8 @@ Sometimes when creating a new application, it may display an error. It is still 
 ### Linux manual installation
 
 ```shell
-git clone https://github.com/Dellenoam/NotPixelBot.git
-cd NotPixelBot
+git clone https://github.com/asish1346/NotPro.git
+cd NotPro
 python3 -m venv .venv
 source .venv/bin/activate
 pip install poetry
@@ -253,7 +253,7 @@ nano .env  # Specify your API_ID and API_HASH, the rest is taken by default
 ### Windows manual installation
 
 ```shell
-git clone https://github.com/Dellenoam/NotPixelBot.git
+git clone https://github.com/asish1346/NotPro.git
 cd NotPixelBot
 python -m venv .venv
 .venv\Scripts\activate
