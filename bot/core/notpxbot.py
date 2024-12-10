@@ -283,6 +283,9 @@ class NotPXBot:
             websocket_token=websocket_token,
         )
 
+        if settings.COMPLETE_QUESTS and self._quests_to_complete:
+            await self._quest_completion(session)
+
         if settings.UPGRADE_BOOSTS:
             if (
                 self.boost_energyLimit != self.max_boosts["energyLimit"]
@@ -371,9 +374,6 @@ class NotPXBot:
 
         if settings.COMPLETE_TASKS and self._tasks_to_complete:
             await self._task_completion(session, telegram_client)
-
-        if settings.COMPLETE_QUESTS and self._quests_to_complete:
-            await self._quest_completion(session)
 
         if settings.WATCH_ADS:
             await self._watch_ads(session)
