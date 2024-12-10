@@ -279,8 +279,9 @@ class WebSocketManager:
 
 def handle_task_completion(task: asyncio.Task) -> None:
     try:
-        if task.exception():
-            raise task.exception()
+        exception = task.exception()
+        if exception is not None:
+            raise exception
     except (asyncio.CancelledError, KeyboardInterrupt):
         pass
     except Exception as error:
